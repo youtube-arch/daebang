@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 import os
 
 # --- 설정 (이 부분을 수정하세요) ---
-GEMINI_API_KEY = "AIzaSyAsuoRYE7qp_cMPBa6zyg5WHnAFOv6I_7Y"
+GEMINI_API_KEY = "AIzaSyDWKKpQRBzaj9Dz43OPV-83lQRZQr2ro10"
 PDF_FILE_NAME = "school_rules.pdf"  # 학교 규정집/학사일정 파일명
 # ------------------------------
 
