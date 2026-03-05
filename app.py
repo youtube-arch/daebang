@@ -3,41 +3,49 @@ import google.generativeai as genai
 from PyPDF2 import PdfReader
 import os
 
-# --- 설정 (개인용 @gmail.com 계정에서 만든 키를 넣으세요) ---
-GEMINI_API_KEY = "여기에_새로_발급받은_키를_넣으세요"
+# --- 설정 (반드시 개인 @gmail.com 계정의 키를 넣으세요) ---
+GEMINI_API_KEY = "AIzaSyDWKKpQRBzaj9Dz43OPV-83lQRZQr2ro10"
 PDF_FILE_NAME = "school_rules.pdf" 
 
-# 페이지 설정
 st.set_page_config(page_title="학교 행정 AI 도우미", layout="centered")
 st.title("🏫 학교생활 무엇이든 물어보세요!")
 
-# 1. API 키 인증 및 모델 준비
-genai.configure(api_key="AIzaSyDWKKpQRBzaj9Dz43OPV-83lQRZQr2ro10")
-model = genai.GenerativeModel('gemini-pro')
+# API 설정
+genai.configure(api_key=GEMINI_API_KEY)
 
-# 2. PDF 데이터 로드 함수 (오류 파악용 코드 추가)
+# 사용 가능한 모델 자동 찾기 함수
 @st.cache_resource
-def load_school_data(file_path):
-    if not os.path.exists(file_path):
-        return f"오류: '{file_path}' 파일이 서버에 없습니다. 파일명을 확인하세요."
+def get_best_model():
     try:
-        text = ""
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                # 1.5-flash가 있으면 우선 선택, 없으면 첫 번째 가능 모델 선택
+                if 'gemini-1.5-flash' in m.name:
+                    return m.name
+        return 'models/gemini-pro' # 기본값
+    except Exception:
+        return 'models/gemini-pro'
+
+target_model = get_best_model()
+
+# PDF 로드 함수
+@st.cache_resource
+def load_pdf_data(file_path):
+    if not os.path.exists(file_path):
+        return None
+    text = ""
+    try:
         reader = PdfReader(file_path)
         for page in reader.pages:
-            content = page.extract_text()
-            if content: text += content
-        
-        if not text.strip():
-            return "오류: PDF에서 텍스트를 추출할 수 없습니다. 스캔 이미지가 아닌지 확인하세요."
-        return text
-    except Exception as e:
-        return f"PDF 읽기 중 기술적 오류 발생: {e}"
+            text += page.extract_text()
+        return text if text.strip() else None
+    except:
+        return None
 
-context_data = load_school_data(PDF_FILE_NAME)
+context_text = load_pdf_data(PDF_FILE_NAME)
 
-# 3. 채팅 UI 구성
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "안녕하세요! 학교 규정이나 일정에 대해 물어봐 주세요."}]
+    st.session_state.messages = [{"role": "assistant", "content": "안녕하세요! 학교 규정 및 일정에 대해 답변해 드립니다."}]
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -49,17 +57,16 @@ if prompt := st.chat_input("질문을 입력하세요"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # PDF 데이터에 오류 문구가 있는지 확인
-        if isinstance(context_data, str) and context_data.startswith("오류"):
-            st.error(context_data)
+        if not context_text:
+            st.error("PDF 파일을 읽을 수 없습니다. 파일명과 내용을 확인해주세요.")
         else:
             try:
-                # AI에게 구체적인 답변 지침 하달
+                # 선택된 모델로 답변 생성
+                model = genai.GenerativeModel(target_model)
                 response = model.generate_content(
-                    f"너는 학교 도우미야. 아래 내용을 참고해서 친절히 답해줘.\n\n[내용]\n{context_data}\n\n질문: {prompt}"
+                    f"당신은 학교 도우미입니다. 아래 정보를 바탕으로 답변하세요.\n\n[정보]\n{context_text}\n\n질문: {prompt}"
                 )
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             except Exception as e:
-                st.error(f"AI 응답 실패: {e}")
-                st.info("개인 @gmail.com 계정으로 생성한 API 키가 맞는지 다시 확인해 주세요.")
+                st.error(f"AI 응답 실패 (모델: {target_model}): {e}")
