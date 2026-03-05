@@ -12,7 +12,7 @@ st.set_page_config(page_title="학교 행정 AI 도우미", layout="centered")
 st.title("🏫 학교생활 무엇이든 물어보세요!")
 
 # 1. API 키 인증 및 모델 준비
-genai.configure(api_key=AIzaSyDWKKpQRBzaj9Dz43OPV-83lQRZQr2ro10)
+genai.configure(api_key="AIzaSyDWKKpQRBzaj9Dz43OPV-83lQRZQr2ro10")
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 2. PDF 데이터 로드 함수 (오류 파악용 코드 추가)
