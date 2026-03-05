@@ -10,7 +10,7 @@ PDF_FILE_NAME = "school_rules.pdf"  # 학교 규정집/학사일정 파일명
 
 # API 키 인증
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-pro')
 
 st.set_page_config(page_title="학교 행정 AI 도우미", layout="centered")
 st.title("🏫 학교생활 무엇이든 물어보세요!")
