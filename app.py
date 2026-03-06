@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 import os
 
 # --- 설정 (개인 @gmail.com 계정의 키를 넣어주세요) ---
-GEMINI_API_KEY = "AIzaSyDOKCkwfkaMG4IJ-K1FTMC7pfOrR7RoWNs"
+GEMINI_API_KEY = "AIzaSyD20njCXGYl7XujzpGvGF4x3aZAJh37-mA"
 PDF_FILE_NAME = "school_rules.pdf" 
 
 st.set_page_config(page_title="학교 행정 AI 도우미", layout="centered")
