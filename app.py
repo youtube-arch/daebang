@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 import os
 
 # --- 설정 (개인 @gmail.com 계정의 키를 넣어주세요) ---
-GEMINI_API_KEY = "AIzaSyDWKKpQRBzaj9Dz43OPV-83lQRZQr2ro10"
+GEMINI_API_KEY = "AIzaSyDOKCkwfkaMG4IJ-K1FTMC7pfOrR7RoWNs"
 PDF_FILE_NAME = "school_rules.pdf" 
 
 st.set_page_config(page_title="학교 행정 AI 도우미", layout="centered")
@@ -64,7 +64,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
         else:
             try:
                 # 자동 선택된 모델로 답변 생성
-                model = genai.GenerativeModel(target_model_name)
+                model = genai.GenerativeModel('gemini-1.5-flash-latest')
                 response = model.generate_content(
                     f"너는 학교 행정 전문가야. 아래 정보를 바탕으로만 답변해줘.\n\n[정보]\n{context_text}\n\n질문: {prompt}"
                 )
